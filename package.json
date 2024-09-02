@@ -1,12 +1,12 @@
 {
-	"name": "@byojs/--TODO--",
-	"description": "--TODO--",
-	"version": "0.0.0-TODO",
+	"name": "@byojs/modal",
+	"description": "Simple wrapper around SweetAlert2",
+	"version": "0.0.0-20240902184700",
 	"exports": {
-		"./": "./dist/--TODO--.mjs"
+		"./": "./dist/modal.mjs"
 	},
 	"browser": {
-		"@byojs/--TODO--": "./dist/--TODO--.mjs"
+		"@byojs/modal": "./dist/modal.mjs"
 	},
 	"scripts": {
 		"build:all": "node scripts/build-all.js",
@@ -17,22 +17,27 @@
 		"postinstall": "node scripts/postinstall.js",
 		"prepublishOnly": "npm run build:all"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"@byojs/scheduler": "~0.0.0-preA",
+		"sweetalert2": "~11.12.4"
+	},
 	"devDependencies": {
-		"micromatch": "~4.0.8",
+		"micromatch": "~4.0.5",
 		"recursive-readdir-sync": "~1.0.6",
-		"terser": "~5.31.6"
+		"terser": "~5.29.2"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/byojs/--TODO--.git"
+		"url": "git+https://github.com/byojs/modal.git"
 	},
-	"keywords": [],
+	"keywords": [
+		"storage"
+	],
 	"bugs": {
-		"url": "https://github.com/byojs/--TODO--/issues",
-		"email": "--TODO--"
+		"url": "https://github.com/byojs/modal/issues",
+		"email": "getify@gmail.com"
 	},
-	"homepage": "https://github.com/byojs/--TODO--",
-	"author": "--TODO--",
+	"homepage": "https://github.com/byojs/modal",
+	"author": "Kyle Simpson <getify@gmail.com>",
 	"license": "MIT"
 }
