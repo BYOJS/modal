@@ -14,11 +14,15 @@ export {
 	showError,
 	showToast,
 	promptSimple,
+	startSpinner,
+	stopSpinner,
 };
 var publicAPI = {
 	showError,
 	showToast,
 	promptSimple,
+	startSpinner,
+	stopSpinner,
 };
 export default publicAPI;
 
@@ -90,9 +94,16 @@ function showSpinner() {
 		showConfirmButton: false,
 		allowOutsideClick: false,
 		allowEscapeKey: false,
-		customClass: {
-			popup: "spinner-popup",
-		},
 	});
 	Swal.showLoading();
+}
+
+function stopSpinner() {
+	if (spinnerCancel) {
+		spinnerCancel();
+		spinnerCancel = null;
+		if (Swal.isVisible() && Swal.getPopup().matches(".spinner-popup")) {
+			return Swal.close();
+		}
+	}
 }

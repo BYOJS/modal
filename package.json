@@ -1,7 +1,7 @@
 {
 	"name": "@byojs/modal",
 	"description": "Simple wrapper around SweetAlert2",
-	"version": "0.0.0-20240902184700",
+	"version": "0.0.0-20240903040200",
 	"exports": {
 		"./": "./dist/modal.mjs"
 	},
@@ -18,7 +18,7 @@
 		"prepublishOnly": "npm run build:all"
 	},
 	"dependencies": {
-		"@byojs/scheduler": "~0.0.0-preA",
+		"@byojs/scheduler": "~0.0.0-20240903035700",
 		"sweetalert2": "~11.12.4"
 	},
 	"devDependencies": {
