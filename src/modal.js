@@ -1,11 +1,11 @@
 import Swal from "./external/esm.swal.mjs";
-import Scheduler from "@byojs/scheduler";
+import Toggler from "@byojs/toggler";
 
 
 // ***********************
 
-var spinnerStart = Scheduler(300,400);
-var spinnerCancel;
+var spinnerStatus = "closed";
+var toggleSpinner = configSpinner(300,500);
 
 
 // ***********************
@@ -14,6 +14,7 @@ export {
 	showError,
 	showToast,
 	promptSimple,
+	configSpinner,
 	startSpinner,
 	stopSpinner,
 };
@@ -21,6 +22,7 @@ var publicAPI = {
 	showError,
 	showToast,
 	promptSimple,
+	configSpinner,
 	startSpinner,
 	stopSpinner,
 };
@@ -82,28 +84,59 @@ async function promptSimple({
 	return false;
 }
 
+function configSpinner(startDelay = 300,stopDelay = 500) {
+	toggleSpinner = Toggler(startDelay,stopDelay);
+}
+
 function startSpinner() {
-	if (!spinnerCancel) {
-		spinnerCancel = spinnerStart(showSpinner);
+	if (![ "opening", "open", ].includes(spinnerStatus)) {
+		spinnerStatus = "opening";
+		toggleSpinner(showSpinner,hideSpinner);
+	}
+}
+
+function stopSpinner() {
+	if (![ "closing", "closed", ].includes(spinnerStatus)) {
+		spinnerStatus = "closing";
+		toggleSpinner(showSpinner,hideSpinner);
 	}
 }
 
 function showSpinner() {
-	Swal.fire({
-		position: "top",
-		showConfirmButton: false,
-		allowOutsideClick: false,
-		allowEscapeKey: false,
-	});
-	Swal.showLoading();
+	spinnerStatus = "open";
+
+	// ensure we don't "re-open" an already-open spinner modal,
+	// as this causes a flicker that is UX undesirable.
+	if (!(
+		Swal.isVisible() &&
+		Swal.getPopup().matches(".spinner-popup"))
+	) {
+		Swal.fire({
+			position: "top",
+			showConfirmButton: false,
+			allowOutsideClick: false,
+			allowEscapeKey: false,
+			customClass: {
+				// used purely for .matches(), not for CSS,
+				// although you *can* add your own CSS
+				// `.spinner-popup` class, to customize its
+				// styling
+				popup: "spinner-popup",
+			},
+		});
+		Swal.showLoading();
+	}
 }
 
-function stopSpinner() {
-	if (spinnerCancel) {
-		spinnerCancel();
-		spinnerCancel = null;
-		if (Swal.isVisible() && Swal.getPopup().matches(".spinner-popup")) {
-			return Swal.close();
-		}
+function hideSpinner() {
+	spinnerStatus = "closed";
+
+	// ensure we only close an actually-open spinner
+	// modal (and not some other valid modal)
+	if (
+		Swal.isVisible() &&
+		Swal.getPopup().matches(".spinner-popup")
+	) {
+		Swal.close();
 	}
 }

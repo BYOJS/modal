@@ -15,8 +15,10 @@
 <hr>
 
 <p>
-	<button type="button" id="todo-btn">todo</button>
+	<button type="button" id="run-spinner-tests-btn">run spinner tests</button>
 </p>
+
+<div id="test-results"></div>
 
 </main>
 
@@ -28,8 +30,10 @@
 		"modal/src": "./src/modal.js",
 		"modal/dist": "./dist/modal.mjs",
 
-		"sweetalert2": "./dist/external/swal.js",
-		"@byojs/scheduler": "./dist/external/@byojs/scheduler/scheduler.mjs"
+		"@byojs/toggler": "./dist/external/@byojs/toggler/toggler.mjs",
+		"@byojs/scheduler": "./dist/external/@byojs/toggler/external/@byojs/scheduler/scheduler.mjs",
+
+		"sweetalert2": "./dist/external/swal.js"
 	}
 }
 </script>
