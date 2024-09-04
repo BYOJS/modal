@@ -65,11 +65,49 @@ import { /* TODO */ } from "modal";
 
 ## Modal API
 
-The API provided by **Modal**...
+The API provided by **Modal** includes a variety of methods for different types of modals.
+
+### Spinner
+
+When asynchronous (but "blocking") behavior is happening on a page -- such as loading important data or behavior -- it can be useful to show a modal spinner to the user to indicate they shouldn't try to interact with the page temporarily.
+
+But more importantly, spinners should be carefully managed to avoid detractive and distracting UX. For example, if an operation is going to complete pretty quickly, flashing up a spinner for only a fraction of a second might not be helpful. It's therefore preferable to [*debounce*](https://github.com/byojs/scheduler?tab=readme-ov-file#debouncing) (i.e., delaying briefly) the spinner being shown.
+
+On the other hand, once a spinner has been shown, the underlying operation might finish a few milliseconds later, which would then hide the spinner quickly, causing the same unfortunate UX flash. Even worse, a series of async operations could cause the spinner to flicker on and off repeatedly. So the closing of an open spinner *also* needs to be briefly debounced, even though that *technically* delays the user slightly longer than strictly required.
+
+**Note:** This extra *delay* is only UX perceptible, it's not actually a delay that the underlying code would experience. It's also possible to call another **Modal** method to popup another type of modal, which will immediately hide the spinner.
+
+Since all this spinner timing is highly UX dependent, the amount of delay is configurable, for both the debounce on showing the spinner (default: `300`ms) and the debounce on hiding the spinner (default: `500`ms).
+
+Importantly, **Modal** makes all this complicated spinner timing management easy.
 
 ```js
-// .. TODO
+import {
+    configSpinner,
+    startSpinner,
+    stopSpinner
+} from "..";
+
+// override the spinner timing defaults
+configSpinner(
+    /*showDelay=*/150,
+    /*hideDelay=*/225
+);
+
+// schedule the spinner to show up
+// (after its debounce delay)
+startSpinner();
+
+// later, schedule the spinner to hide
+// (after its debounce delay)
+stopSpinner();
 ```
+
+**Note:** Even though the `startSpinner()` and `stopSpinner()` functions fire off asynchronous behavior (spinner modal dependent on debounce delays), the function themselves are synchronous (not promise returning).
+
+Both `startSpinner()` and `stopSpinner()` are idempotently safe, meaning you *could* call `startSpinner()` twice before calling `stopSpinner()`, or vice versa, and you still just get the one scheduled action (showing or hiding).
+
+Also, if you call `stopSpinner()` after `startSpinner()` but *before* the show-debounce delay has transpired, the spinner showing will be canceled. Likewise, if you call `showSpinner()` after `stopSpinner()` but *before* the hide-debounce delay has transpired, the spinner hiding will be canceled.
 
 // TODO
 

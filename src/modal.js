@@ -1,4 +1,4 @@
-import Swal from "./external/esm.swal.mjs";
+import Swal from "sweetalert2";
 import Toggler from "@byojs/toggler";
 
 

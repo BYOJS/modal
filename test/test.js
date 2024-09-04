@@ -2,6 +2,7 @@
 //    in index.html; swap "src" for "dist" here to test
 //    against the dist/* files
 import Modal from "modal/src";
+import Swal from "sweetalert2";
 
 
 // ***********************
@@ -26,42 +27,78 @@ async function ready() {
 }
 
 async function runSpinnerTests() {
+	var results = [];
+	var expected = [ "show", "hide", "show", "hide", "show", "hide", ];
 	testResultsEl.innerHTML = "Running spinner tests... please wait.";
 
-	Modal.configSpinner(100,100);
+	try {
+		Modal.configSpinner(100,100);
 
-	Modal.startSpinner();
-	await timeout(110);
-	Modal.stopSpinner();
-	await timeout(110);
-	Modal.startSpinner();
-	Modal.startSpinner();
-	Modal.startSpinner();
-	Modal.stopSpinner();
-	await timeout(110);
-	Modal.startSpinner();
-	Modal.stopSpinner();
-	Modal.stopSpinner();
-	Modal.stopSpinner();
-	await timeout(110);
-	Modal.startSpinner();
-	await timeout(50);
-	Modal.stopSpinner();
-	await timeout(50);
-	Modal.startSpinner();
-	await timeout(110);
-	Modal.stopSpinner();
-	await timeout(500);
-	Modal.startSpinner();
-	await timeout(110);
-	Modal.stopSpinner();
-	await timeout(50);
-	Modal.startSpinner();
-	await timeout(110);
-	Modal.stopSpinner();
-	await timeout(110);
+		var observer = new MutationObserver(mutationList => {
+			results.push(
+				...(
+					mutationList.filter(mutation => (
+						mutation.type == "attributes" &&
+						mutation.attributeName == "class" &&
+						mutation.target.matches(".spinner-popup.swal2-show, .spinner-popup.swal2-hide")
+					))
+					.map(mutation => (
+						mutation.target.className.match(/\bswal2-(show|hide)\b/)[1]
+					))
+				)
+			);
+		});
+		observer.observe(document.body,{ attributes: true, subtree: true, });
 
-	testResultsEl.innerHTML = "Done.";
+		Modal.startSpinner();
+		await timeout(110);
+		Modal.stopSpinner();
+		await timeout(500);
+		Modal.startSpinner();
+		Modal.startSpinner();
+		Modal.startSpinner();
+		Modal.stopSpinner();
+		await timeout(110);
+		Modal.startSpinner();
+		Modal.stopSpinner();
+		Modal.stopSpinner();
+		Modal.stopSpinner();
+		await timeout(110);
+		Modal.startSpinner();
+		await timeout(50);
+		Modal.stopSpinner();
+		await timeout(50);
+		Modal.startSpinner();
+		await timeout(110);
+		Modal.stopSpinner();
+		await timeout(500);
+		Modal.startSpinner();
+		await timeout(110);
+		Modal.stopSpinner();
+		await timeout(50);
+		Modal.startSpinner();
+		await timeout(110);
+		Modal.stopSpinner();
+		await timeout(500);
+
+		// remove consecutive duplicates
+		results = results.reduce((list,v) => (
+			list.length == 0 || list[list.length - 1] != v ?
+				[ ...list, v ] :
+				list
+		),[]);
+
+		if (JSON.stringify(results) == JSON.stringify(expected)) {
+			testResultsEl.innerHTML = "(Spinner) PASSED.";
+		}
+		else {
+			testResultsEl.innerHTML = `(Spinner) FAILED: expected '${expected.join(",")}', found '${results.join(",")}'`;
+		}
+	}
+	catch (err) {
+		logError(err);
+		testResultsEl.innerHTML = "(Spinner) FAILED (see console)";
+	}
 }
 
 function timeout(ms) {
