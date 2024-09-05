@@ -132,7 +132,12 @@ async function runToastModalTests() {
 	var results = [];
 	var expected = [
 		/*visible*/true,
-		/*correct content*/true,
+		/*correct toast*/true,
+		/*visible*/false,
+		/*visible*/true,
+		/*correct spinner*/true,
+		/*visible*/true,
+		/*correct toast*/true,
 		/*visible*/false,
 	];
 	testResultsEl.innerHTML += "Running toast-modal tests... please wait.<br>";
@@ -142,6 +147,30 @@ async function runToastModalTests() {
 		Modal.showToast(toastMsg,500);
 		await timeout(250);
 		let popup = Swal.getPopup();
+		results.push(
+			Swal.isVisible(),
+			(
+				popup.querySelector(".swal2-html-container").innerText == toastMsg
+			)
+		);
+		await timeout(500);
+		results.push(
+			Swal.isVisible() || Swal.getContainer() != null
+		);
+
+		// now popup spinner and make sure toast-dialog
+		// then closes spinner before opening itself
+		Modal.configSpinner(100,100);
+		Modal.startSpinner();
+		await timeout(250);
+		popup = Swal.getPopup();
+		results.push(
+			Swal.isVisible(),
+			popup.matches(".spinner-popup.swal2-show")
+		);
+		Modal.showToast(toastMsg,500);
+		await timeout(350);
+		popup = Swal.getPopup();
 		results.push(
 			Swal.isVisible(),
 			(
@@ -172,7 +201,12 @@ async function runNoticeModalTests() {
 	var results = [];
 	var expected = [
 		/*visible*/true,
-		/*correct content*/true,
+		/*correct notice*/true,
+		/*visible*/false,
+		/*visible*/true,
+		/*correct spinner*/true,
+		/*visible*/true,
+		/*correct notice*/true,
 		/*visible*/false,
 	];
 	testResultsEl.innerHTML += "Running notice-modal tests... please wait.<br>";
@@ -189,7 +223,33 @@ async function runNoticeModalTests() {
 				popup.querySelector(".swal2-html-container").innerText == noticeMsg
 			)
 		);
-		Swal.close();
+		Modal.close();
+		await timeout(250);
+		results.push(
+			Swal.isVisible() || Swal.getContainer() != null
+		);
+
+		// now popup spinner and make sure notice-dialog
+		// then closes spinner before opening itself
+		Modal.configSpinner(100,100);
+		Modal.startSpinner();
+		await timeout(250);
+		popup = Swal.getPopup();
+		results.push(
+			Swal.isVisible(),
+			popup.matches(".spinner-popup.swal2-show")
+		);
+		Modal.showNotice(noticeMsg);
+		await timeout(350);
+		popup = Swal.getPopup();
+		results.push(
+			Swal.isVisible(),
+			(
+				popup.querySelector(".swal2-icon.swal2-info.swal2-icon-show") != null &&
+				popup.querySelector(".swal2-html-container").innerText == noticeMsg
+			)
+		);
+		Modal.close();
 		await timeout(250);
 		results.push(
 			Swal.isVisible() || Swal.getContainer() != null
@@ -214,7 +274,12 @@ async function runErrorModalTests() {
 	var results = [];
 	var expected = [
 		/*visible*/true,
-		/*correct content*/true,
+		/*correct error*/true,
+		/*visible*/false,
+		/*visible*/true,
+		/*correct spinner*/true,
+		/*visible*/true,
+		/*correct error*/true,
 		/*visible*/false,
 	];
 	testResultsEl.innerHTML += "Running error-modal tests... please wait.<br>";
@@ -231,7 +296,33 @@ async function runErrorModalTests() {
 				popup.querySelector(".swal2-html-container").innerText == errMsg
 			)
 		);
-		Swal.close();
+		Modal.close();
+		await timeout(250);
+		results.push(
+			Swal.isVisible() || Swal.getContainer() != null
+		);
+
+		// now popup spinner and make sure error-dialog
+		// then closes spinner before opening itself
+		Modal.configSpinner(100,100);
+		Modal.startSpinner();
+		await timeout(250);
+		popup = Swal.getPopup();
+		results.push(
+			Swal.isVisible(),
+			popup.matches(".spinner-popup.swal2-show")
+		);
+		Modal.showError(errMsg);
+		await timeout(350);
+		popup = Swal.getPopup();
+		results.push(
+			Swal.isVisible(),
+			(
+				popup.querySelector(".swal2-icon.swal2-error.swal2-icon-show") != null &&
+				popup.querySelector(".swal2-html-container").innerText == errMsg
+			)
+		);
+		Modal.close();
 		await timeout(250);
 		results.push(
 			Swal.isVisible() || Swal.getContainer() != null
@@ -256,7 +347,12 @@ async function runSimplePromptModalTests() {
 	var results = [];
 	var expected = [
 		/*visible*/true,
-		/*correct content*/true,
+		/*correct prompt*/true,
+		/*visible*/false,
+		/*visible*/true,
+		/*correct spinner*/true,
+		/*visible*/true,
+		/*correct prompt*/true,
 		/*visible*/false,
 	];
 	testResultsEl.innerHTML += "Running prompt-modal tests... please wait.<br>";
@@ -293,7 +389,46 @@ async function runSimplePromptModalTests() {
 				popup.querySelector(".swal2-cancel").innerText == promptCancelButtonText
 			)
 		);
-		Swal.close();
+		Modal.close();
+		await timeout(250);
+		results.push(
+			Swal.isVisible() || Swal.getContainer() != null
+		);
+
+		// now popup spinner and make sure prompt-dialog
+		// then closes spinner before opening itself
+		Modal.configSpinner(100,100);
+		Modal.startSpinner();
+		await timeout(250);
+		popup = Swal.getPopup();
+		results.push(
+			Swal.isVisible(),
+			popup.matches(".spinner-popup.swal2-show")
+		);
+		Modal.promptSimple({
+			title: promptTitle,
+			text: promptText,
+			input: "date",
+			inputLabel: promptInputLabel,
+			inputValue: currentDate,
+			confirmButtonText: promptConfirmButtonText,
+			cancelButtonText: promptCancelButtonText,
+		});
+		await timeout(350);
+		popup = Swal.getPopup();
+		results.push(
+			Swal.isVisible(),
+			(
+				popup.querySelector(".swal2-title").innerText == promptTitle &&
+				popup.querySelector(".swal2-icon.swal2-question.swal2-icon-show") != null &&
+				popup.querySelector(".swal2-html-container").innerText == promptText &&
+				popup.querySelector(".swal2-input-label").innerText == promptInputLabel &&
+				popup.querySelector(".swal2-input[type=date]").value == currentDate &&
+				popup.querySelector(".swal2-confirm").innerText == promptConfirmButtonText &&
+				popup.querySelector(".swal2-cancel").innerText == promptCancelButtonText
+			)
+		);
+		Modal.close();
 		await timeout(250);
 		results.push(
 			Swal.isVisible() || Swal.getContainer() != null

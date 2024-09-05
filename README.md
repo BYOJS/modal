@@ -93,9 +93,9 @@ import {
 } from "..";
 
 // override the spinner timing defaults
-configSpinner(
-    /*showDelay=*/150,
-    /*hideDelay=*/225
+await configSpinner(
+    /*startDelay=*/150,
+    /*stopDelay=*/225
 );
 
 // schedule the spinner to show up
@@ -107,11 +107,13 @@ startSpinner();
 stopSpinner();
 ```
 
-**Note:** Even though the `startSpinner()` and `stopSpinner()` functions fire off asynchronous behavior (spinner modal dependent on debounce delays), the function themselves are synchronous (not promise returning).
+**Warning:** You must make sure any other **Modal** dialogs are closed *before* calling `startSpinner()`; otherwise, its ignored.
 
-Both `startSpinner()` and `stopSpinner()` are idempotently safe, meaning you *could* call `startSpinner()` twice before calling `stopSpinner()`, or vice versa, and you still just get the one scheduled action (showing or hiding).
+Even though the `startSpinner()` and `stopSpinner()` functions fire off asynchronous behavior (spinner modal, dependent on debounce delays), the function themselves are synchronous (not promise returning).
 
-Also, if you call `stopSpinner()` after `startSpinner()` but *before* the show-debounce delay has transpired, the spinner showing will be canceled. Likewise, if you call `showSpinner()` after `stopSpinner()` but *before* the hide-debounce delay has transpired, the spinner hiding will be canceled.
+Both `startSpinner()` and `stopSpinner()` are idempotently safe, meaning you *may* call `startSpinner()` twice before calling `stopSpinner()`, or vice versa, and you still just get the one scheduled action (showing or hiding).
+
+Also, if you call `stopSpinner()` after `startSpinner()` but *before* the start-delay has transpired, the spinner showing will be canceled. Likewise, if you call `showSpinner()` after `stopSpinner()` but *before* the stop-delay has transpired, the spinner hiding will be canceled.
 
 ### Toast
 
@@ -133,6 +135,8 @@ showToast("Longer message...",15000);
 
 The minimum value for the delay is `250`ms (1/4 of a second).
 
+`showToast()` is an async (promise-returning) function; if desired, use `await` (or `.then()`) to wait for when the modal is closed -- **however, since toasts aren't technically UX modal, this is not recommended**. The resolved value is a [SweetAlert2 result object](https://sweetalert2.github.io/#handling-buttons), should you need it.
+
 ### Notice
 
 A *notice* is a standard modal that presents textual information. To display a notice modal:
@@ -140,10 +144,12 @@ A *notice* is a standard modal that presents textual information. To display a n
 ```js
 import { showNotice } from "..";
 
-showNotice("This is important information.");
+await showNotice("This is important information.");
 ```
 
 **Note:** This modal requires a user to click "OK", or dismiss the dialog with `<ESCAPE>` key or by clicking the "X" icon.
+
+`showNotice()` is an async (promise-returning) function; use `await` (or `.then()`) to wait for when the modal is closed. The resolved value is a [SweetAlert2 result object](https://sweetalert2.github.io/#handling-buttons), should you need it.
 
 ### Error
 
@@ -152,10 +158,12 @@ An *error* is a standard modal that presents textual information that represents
 ```js
 import { showError } from "..";
 
-showError("Oops, that request failed. Please try again.");
+await showError("Oops, that request failed. Please try again.");
 ```
 
 **Note:** This modal requires a user to click "OK", or dismiss the dialog with `<ESCAPE>` key or by clicking the "X" icon.
+
+`showError()` is an async (promise-returning) function; use `await` (or `.then()`) to wait for when the modal is closed. The resolved value is a [SweetAlert2 result object](https://sweetalert2.github.io/#handling-buttons), should you need it.
 
 ### Simple Prompt
 
@@ -164,17 +172,39 @@ An *simple prompt* is a standard modal asks the user to input one piece of infor
 ```js
 import { promptSimple } from "..";
 
-promptSimple({
+var result = await promptSimple({
     title: "We need your information...",
     text: "Please enter your email:",
     input: "email",
     inputPlaceholder: "someone@whatever.tld"
 });
+if (typeof result == "string") {
+    console.log(`Email entered: ${result}`);
+}
+else if (result.canceled) {
+    console.log("No email provided.");
+}
 ```
 
 The options available to `promptSimple()` are [passed directly through to SweetAlert2](https://sweetalert2.github.io/#configuration). **Modal** provides a few sensible defaults, but pretty much everything can be overridden here, as you see fit.
 
 **Note:** This modal requires a user to click the confirm button (default: "Submit"), or dismiss the dialog with `<ESCAPE>` key or by clicking the cancel button (default: "Cancel") or "X" icon.
+
+`promptSimple()` is an async (promise-returning) function; use `await` (or `.then()`) to wait for when the modal is closed. If the prompt is confirmed, the promise will resolve directly to the user input value (string *email address* above).
+
+Otherwise, if you need it, the resolved value is a [SweetAlert2 result object](https://sweetalert2.github.io/#handling-buttons), with `isDenied` or `isDismissed` properties set to `true` -- and if dismissed, [the `dismiss` property is also set, with the dismissal reason](https://sweetalert2.github.io/#handling-dismissals). Depending on configuration and user interaction, the `value` property may also be set.
+
+## Closing an open modal
+
+To externally force-close any open modal immediately (except spinner):
+
+```js
+import { close } from "..";
+
+close();
+```
+
+**Note:** It's strongly suggested you *do not* use this method to close the [spinner modal](#spinner); use `stopSpinner()` instead.
 
 ## Re-building `dist/*`
 

@@ -4,8 +4,12 @@ import Toggler from "@byojs/toggler";
 
 // ***********************
 
+var modalType = null;
 var modalStatus = "closed";
-var toggleSpinner = configSpinner(300,500);
+var toggleStartDelay = 300;
+var toggleStopDelay = 500;
+var toggleSpinner = null;
+configSpinner(toggleStartDelay,toggleStopDelay).catch(()=>{});
 
 
 // ***********************
@@ -35,7 +39,11 @@ export default publicAPI;
 
 // ***********************
 
-function showToast(toastMsg,hideDelay = 5000) {
+async function showToast(toastMsg,hideDelay = 5000) {
+	var check = checkCloseSpinner();
+	if (isPromise(check)) await check;
+
+	modalType = "toast";
 	modalStatus = "opening";
 
 	return Swal.fire({
@@ -53,7 +61,11 @@ function showToast(toastMsg,hideDelay = 5000) {
 	});
 }
 
-function showNotice(noticeMsg) {
+async function showNotice(noticeMsg) {
+	var check = checkCloseSpinner();
+	if (isPromise(check)) await check;
+
+	modalType = "notice";
 	modalStatus = "opening";
 
 	return Swal.fire({
@@ -65,7 +77,11 @@ function showNotice(noticeMsg) {
 	});
 }
 
-function showError(errMsg) {
+async function showError(errMsg) {
+	var check = checkCloseSpinner();
+	if (isPromise(check)) await check;
+
+	modalType = "error";
 	modalStatus = "opening";
 
 	return Swal.fire({
@@ -92,6 +108,10 @@ async function promptSimple({
 	didDestroy = onModalClose,
 	...swalOptions
 } = {}) {
+	var check = checkCloseSpinner();
+	if (isPromise(check)) await check;
+
+	modalType = "simple-prompt";
 	modalStatus = "opening";
 
 	var result = await Swal.fire({
@@ -120,30 +140,40 @@ async function promptSimple({
 	if (result.isConfirmed) {
 		return result.value;
 	}
-	return false;
+	return result;
 }
 
-function configSpinner(startDelay = 300,stopDelay = 500) {
+async function configSpinner(
+	startDelay = toggleStartDelay,
+	stopDelay = toggleStopDelay
+) {
+	var check = checkCloseSpinner();
+	if (isPromise(check)) await check;
+
+	toggleStartDelay = startDelay;
+	toggleStopDelay = stopDelay;
 	toggleSpinner = Toggler(startDelay,stopDelay);
 }
 
 function startSpinner() {
 	if (![ "opening", "open", ].includes(modalStatus)) {
+		modalType = "spinner";
 		modalStatus = "opening";
 		toggleSpinner(showSpinner,hideSpinner);
 	}
 }
 
 function stopSpinner() {
-	if (![ "closing", "closed", ].includes(modalStatus)) {
+	if (
+		modalType == "spinner" &&
+		![ "closing", "closed", ].includes(modalStatus)
+	) {
 		modalStatus = "closing";
 		toggleSpinner(showSpinner,hideSpinner);
 	}
 }
 
 function showSpinner() {
-	modalStatus = "open";
-
 	// ensure we don't "re-open" an already-open spinner modal,
 	// as this causes a flicker that is UX undesirable.
 	if (!(
@@ -170,20 +200,43 @@ function showSpinner() {
 }
 
 function hideSpinner() {
-	modalStatus = "closed";
-
 	// ensure we only close an actually-open spinner
 	// modal (and not some other valid modal)
 	if (
 		Swal.isVisible() &&
 		Swal.getPopup().matches(".spinner-popup")
 	) {
-		close();
+		Swal.close();
 	}
 }
 
-function close() {
-	Swal.close();
+function checkCloseSpinner(){
+	if (modalType == "spinner" && modalStatus != "closed") {
+		return new Promise(res => {
+			if ([ "opening", "open", ].includes(modalStatus)) {
+				stopSpinner();
+			}
+			modalStatus = "closing";
+
+			// make sure we wait for the spinner to fully close
+			setTimeout(res,toggleStopDelay);
+		});
+	}
+}
+
+async function close() {
+	if (modalType == "spinner") {
+		await checkCloseSpinner();
+	}
+	// modal still visible?
+	if (Swal.isVisible()) {
+		modalStatus = "closing";
+		Swal.close();
+	}
+	else {
+		modalType = null;
+		modalStatus = "closed";
+	}
 }
 
 function onModalOpen() {
@@ -191,5 +244,10 @@ function onModalOpen() {
 }
 
 function onModalClose() {
+	modalType = null;
 	modalStatus = "closed";
+}
+
+function isPromise(v) {
+	return v && typeof v == "object" && typeof v.then == "function";
 }
