@@ -20,16 +20,41 @@ else {
 // ***********************
 
 async function ready() {
-	var runSpinnerTestsBtn = document.getElementById("run-spinner-tests-btn");
+	var runAllTestsBtn = document.getElementById("run-all-tests-btn");
+	var runSpinnerModalTestsBtn = document.getElementById("run-spinner-tests-btn");
+	var runToastModalTestsBtn = document.getElementById("run-toast-modal-tests-btn");
+	var runNoticeModalTestsBtn = document.getElementById("run-notice-modal-tests-btn");
+	var runErrorModalTestsBtn = document.getElementById("run-error-modal-tests-btn");
+	var runSimplePromptModalTestsBtn = document.getElementById("run-simple-prompt-modal-tests-btn");
 	testResultsEl = document.getElementById("test-results");
 
-	runSpinnerTestsBtn.addEventListener("click",runSpinnerTests,false);
+	runAllTestsBtn.addEventListener("click",runAllTests,false);
+	runSpinnerModalTestsBtn.addEventListener("click",runSpinnerModalTests,false);
+	runToastModalTestsBtn.addEventListener("click",runToastModalTests,false);
+	runNoticeModalTestsBtn.addEventListener("click",runNoticeModalTests,false);
+	runErrorModalTestsBtn.addEventListener("click",runErrorModalTests,false);
+	runSimplePromptModalTestsBtn.addEventListener("click",runSimplePromptModalTests,false);
 }
 
-async function runSpinnerTests() {
+async function runAllTests() {
+	testResultsEl.innerHTML = "";
+
+	for (let testFn of [
+		runSpinnerModalTests, runToastModalTests, runNoticeModalTests,
+		runErrorModalTests, runSimplePromptModalTests,
+	]) {
+		let result = await testFn();
+		if (result === false) {
+			break;
+		}
+		await timeout(500);
+	}
+}
+
+async function runSpinnerModalTests() {
 	var results = [];
 	var expected = [ "show", "hide", "show", "hide", "show", "hide", ];
-	testResultsEl.innerHTML = "Running spinner tests... please wait.";
+	testResultsEl.innerHTML += "Running spinner-modal tests... please wait.<br>";
 
 	try {
 		Modal.configSpinner(100,100);
@@ -89,16 +114,174 @@ async function runSpinnerTests() {
 		),[]);
 
 		if (JSON.stringify(results) == JSON.stringify(expected)) {
-			testResultsEl.innerHTML = "(Spinner) PASSED.";
+			testResultsEl.innerHTML += "(Spinner Modal) PASSED.<br>";
+			return true;
 		}
 		else {
-			testResultsEl.innerHTML = `(Spinner) FAILED: expected '${expected.join(",")}', found '${results.join(",")}'`;
+			testResultsEl.innerHTML += `(Spinner Modal) FAILED: expected '${expected.join(",")}', found '${results.join(",")}'<br>`;
 		}
 	}
 	catch (err) {
 		logError(err);
-		testResultsEl.innerHTML = "(Spinner) FAILED (see console)";
+		testResultsEl.innerHTML += "(Spinner Modal) FAILED -- see console<br>";
 	}
+	return false;
+}
+
+async function runToastModalTests() {
+	testResultsEl.innerHTML += "Running toast-modal tests... please wait.<br>";
+
+	try {
+		Modal.showToast("Testing toasts...",500);
+		await timeout(750);
+
+		if (!Swal.isVisible() && Swal.getContainer() == null) {
+			testResultsEl.innerHTML += "(Toast Modal) PASSED.<br>";
+			return true;
+		}
+		else {
+			testResultsEl.innerHTML += "(Toast Modal) FAILED: toast modal not closed<br>";
+		}
+	}
+	catch (err) {
+		logError(err);
+		testResultsEl.innerHTML = "(Toast Modal) FAILED -- see console"
+	}
+	return false;
+}
+
+async function runNoticeModalTests() {
+	var results = [];
+	var expected = [ true, true, false, ];
+	testResultsEl.innerHTML += "Running notice-modal tests... please wait.<br>";
+
+	try {
+		let noticeMsg = "Testing notice modal.";
+		Modal.showNotice(noticeMsg);
+		await timeout(250);
+		let popup = Swal.getPopup();
+		results.push(
+			Swal.isVisible(),
+			(
+				popup.querySelector(".swal2-icon.swal2-info.swal2-icon-show") != null &&
+				popup.querySelector(".swal2-html-container").innerText == noticeMsg
+			)
+		);
+		Swal.close();
+		await timeout(250);
+		results.push(
+			Swal.isVisible() || Swal.getContainer() != null
+		);
+
+		if (JSON.stringify(results) == JSON.stringify(expected)) {
+			testResultsEl.innerHTML += "(Notice Modal) PASSED.<br>";
+			return true;
+		}
+		else {
+			testResultsEl.innerHTML += `(Notice Modal) FAILED: expected '${expected.join(",")}', found '${results.join(",")}'<br>`;
+		}
+	}
+	catch (err) {
+		logError(err);
+		testResultsEl.innerHTML = "(Notice Modal) FAILED -- see console"
+	}
+	return false;
+}
+
+async function runErrorModalTests() {
+	var results = [];
+	var expected = [ true, true, false, ];
+	testResultsEl.innerHTML += "Running error-modal tests... please wait.<br>";
+
+	try {
+		let errMsg = "Testing error modal.";
+		Modal.showError(errMsg);
+		await timeout(250);
+		let popup = Swal.getPopup();
+		results.push(
+			Swal.isVisible(),
+			(
+				popup.querySelector(".swal2-icon.swal2-error.swal2-icon-show") != null &&
+				popup.querySelector(".swal2-html-container").innerText == errMsg
+			)
+		);
+		Swal.close();
+		await timeout(250);
+		results.push(
+			Swal.isVisible() || Swal.getContainer() != null
+		);
+
+		if (JSON.stringify(results) == JSON.stringify(expected)) {
+			testResultsEl.innerHTML += "(Error Modal) PASSED.<br>";
+			return true;
+		}
+		else {
+			testResultsEl.innerHTML += `(Error Modal) FAILED: expected '${expected.join(",")}', found '${results.join(",")}'<br>`;
+		}
+	}
+	catch (err) {
+		logError(err);
+		testResultsEl.innerHTML = "(Error Modal) FAILED -- see console"
+	}
+	return false;
+}
+
+async function runSimplePromptModalTests() {
+	var results = [];
+	var expected = [ true, true, false, ];
+	testResultsEl.innerHTML += "Running prompt-modal tests... please wait.<br>";
+
+	try {
+		let promptTitle = "Testing Prompt Modal";
+		let promptText = "Testing prompt modal.";
+		let promptInputLabel = "good label";
+		let promptConfirmButtonText = "Yep";
+		let promptCancelButtonText = "Nope";
+		let now = new Date();
+		let currentDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+		Modal.promptSimple({
+			title: promptTitle,
+			text: promptText,
+			input: "date",
+			inputLabel: promptInputLabel,
+			inputValue: currentDate,
+			confirmButtonText: promptConfirmButtonText,
+			cancelButtonText: promptCancelButtonText,
+		});
+		await timeout(250);
+
+		let popup = Swal.getPopup();
+		results.push(
+			Swal.isVisible(),
+			(
+				popup.querySelector(".swal2-title").innerText == promptTitle &&
+				popup.querySelector(".swal2-icon.swal2-question.swal2-icon-show") != null &&
+				popup.querySelector(".swal2-html-container").innerText == promptText &&
+				popup.querySelector(".swal2-input-label").innerText == promptInputLabel &&
+				popup.querySelector(".swal2-input[type=date]").value == currentDate &&
+				popup.querySelector(".swal2-confirm").innerText == promptConfirmButtonText &&
+				popup.querySelector(".swal2-cancel").innerText == promptCancelButtonText
+			)
+		);
+		Swal.close();
+		await timeout(250);
+		results.push(
+			Swal.isVisible() || Swal.getContainer() != null
+		);
+
+		if (JSON.stringify(results) == JSON.stringify(expected)) {
+			testResultsEl.innerHTML += "(Error Modal) PASSED.<br>";
+			return true;
+		}
+		else {
+			testResultsEl.innerHTML += `(Error Modal) FAILED: expected '${expected.join(",")}', found '${results.join(",")}'<br>`;
+		}
+	}
+	catch (err) {
+		logError(err);
+		testResultsEl.innerHTML = "(Error Modal) FAILED -- see console"
+	}
+	return false;
 }
 
 function timeout(ms) {

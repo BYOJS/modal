@@ -3,10 +3,12 @@
 [![npm Module](https://badge.fury.io/js/@byojs%2Fmodal.svg)](https://www.npmjs.org/package/@byojs/modal)
 [![License](https://img.shields.io/badge/license-MIT-a1356a)](LICENSE.txt)
 
-**Modal** ... // TODO
+**Modal** makes it easy to create nice, accessible modal dialogs (using the widely used and popular [SweetAlert 2](https://sweetalert2.github.io) library).
 
 ```js
-// TODO
+import { showNotice } from "..";
+
+showNotice("Hello, friend.");
 ```
 
 ----
@@ -17,7 +19,9 @@
 
 ## Overview
 
-The main purpose of **Modal** is...
+The main purpose of **Modal** is to provide a simple set of wrappers (and default behaviors) around [SweetAlert 2](https://sweetalert2.github.io).
+
+In addition to standard modals and prompt-dialogs, **Modal** also provides time-limited *Toast* popups (non-modal) as well as a debounced (UX-optimized) spinnner (modal) for blocking asynchronous operations in your UI.
 
 ## Deployment / Import
 
@@ -33,10 +37,10 @@ The [**@byojs/modal** npm package](https://npmjs.com/package/@byojs/modal) inclu
 
 If you are using a bundler (Astro, Vite, Webpack, etc) for your web application, you should not need to manually copy any files from `dist/`.
 
-Just `import` the adapter(s) of your choice, like so:
+Just `import` the methods of your choice, like so:
 
 ```js
-import { /* TODO */ } from "@byojs/modal";
+import { showNotice, showError } from "@byojs/modal";
 ```
 
 The bundler tool should pick up and find whatever files (and dependencies) are needed.
@@ -58,14 +62,14 @@ If you are not using a bundler (Astro, Vite, Webpack, etc) for your web applicat
 Now, you'll be able to `import` the library in your app in a friendly/readable way:
 
 ```js
-import { /* TODO */ } from "modal";
+import { showNotice, showError } from "modal";
 ```
 
 **Note:** If you omit the above *modal* import-map entry, you can still `import` **Modal** by specifying the proper full path to the `modal.mjs` file.
 
 ## Modal API
 
-The API provided by **Modal** includes a variety of methods for different types of modals.
+The API provided by **Modal** includes a variety of methods for displaying different types of modals.
 
 ### Spinner
 
@@ -109,7 +113,68 @@ Both `startSpinner()` and `stopSpinner()` are idempotently safe, meaning you *co
 
 Also, if you call `stopSpinner()` after `startSpinner()` but *before* the show-debounce delay has transpired, the spinner showing will be canceled. Likewise, if you call `showSpinner()` after `stopSpinner()` but *before* the hide-debounce delay has transpired, the spinner hiding will be canceled.
 
-// TODO
+### Toast
+
+A *toast* is a briefly displayed notice, in the upper right corner of the page, that only displays for a period of time then auto-hides itself. Toasts do have a "X" close button to dismiss them early.
+
+**Note:** Toasts are not *technically* "modal" -- they don't actually block the rest of the page. But they're included with this library since they're so closely related.
+
+To display a toast:
+
+```js
+import { showToast } from "..";
+
+// wait 5s (default)
+showToast("Quick heads-up!");
+
+// wait 15s
+showToast("Longer message...",15000);
+```
+
+The minimum value for the delay is `250`ms (1/4 of a second).
+
+### Notice
+
+A *notice* is a standard modal that presents textual information. To display a notice modal:
+
+```js
+import { showNotice } from "..";
+
+showNotice("This is important information.");
+```
+
+**Note:** This modal requires a user to click "OK", or dismiss the dialog with `<ESCAPE>` key or by clicking the "X" icon.
+
+### Error
+
+An *error* is a standard modal that presents textual information that represents something that went wrong. To display an error modal:
+
+```js
+import { showError } from "..";
+
+showError("Oops, that request failed. Please try again.");
+```
+
+**Note:** This modal requires a user to click "OK", or dismiss the dialog with `<ESCAPE>` key or by clicking the "X" icon.
+
+### Simple Prompt
+
+An *simple prompt* is a standard modal asks the user to input one piece of information, such as an email address. To display a simple-prompt modal:
+
+```js
+import { promptSimple } from "..";
+
+promptSimple({
+    title: "We need your information...",
+    text: "Please enter your email:",
+    input: "email",
+    inputPlaceholder: "someone@whatever.tld"
+});
+```
+
+The options available to `promptSimple()` are [passed directly through to SweetAlert2](https://sweetalert2.github.io/#configuration). **Modal** provides a few sensible defaults, but pretty much everything can be overridden here, as you see fit.
+
+**Note:** This modal requires a user to click the confirm button (default: "Submit"), or dismiss the dialog with `<ESCAPE>` key or by clicking the cancel button (default: "Cancel") or "X" icon.
 
 ## Re-building `dist/*`
 

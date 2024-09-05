@@ -4,53 +4,77 @@ import Toggler from "@byojs/toggler";
 
 // ***********************
 
-var spinnerStatus = "closed";
+var modalStatus = "closed";
 var toggleSpinner = configSpinner(300,500);
 
 
 // ***********************
 
 export {
-	showError,
 	showToast,
+	showNotice,
+	showError,
 	promptSimple,
 	configSpinner,
 	startSpinner,
 	stopSpinner,
+	close,
 };
 var publicAPI = {
-	showError,
 	showToast,
+	showNotice,
+	showError,
 	promptSimple,
 	configSpinner,
 	startSpinner,
 	stopSpinner,
+	close,
 };
 export default publicAPI;
 
 
 // ***********************
 
-function showError(errMsg) {
-	return Swal.fire({
-		title: "Error!",
-		text: errMsg,
-		icon: "error",
-		confirmButtonText: "OK",
-	});
-}
+function showToast(toastMsg,hideDelay = 5000) {
+	modalStatus = "opening";
 
-function showToast(toastMsg) {
 	return Swal.fire({
 		text: toastMsg,
 		showConfirmButton: false,
 		showCloseButton: true,
-		timer: 5000,
+		timer: Math.max(Number(hideDelay) || 0,250),
 		toast: true,
 		position: "top-end",
 		customClass: {
 			popup: "toast-popup",
 		},
+		didOpen: onModalOpen,
+		didDestroy: onModalClose,
+	});
+}
+
+function showNotice(noticeMsg) {
+	modalStatus = "opening";
+
+	return Swal.fire({
+		text: noticeMsg,
+		icon: "info",
+		confirmButtonText: "OK",
+		didOpen: onModalOpen,
+		didDestroy: onModalClose,
+	});
+}
+
+function showError(errMsg) {
+	modalStatus = "opening";
+
+	return Swal.fire({
+		title: "Error!",
+		text: errMsg,
+		icon: "error",
+		confirmButtonText: "OK",
+		didOpen: onModalOpen,
+		didDestroy: onModalClose,
 	});
 }
 
@@ -64,8 +88,12 @@ async function promptSimple({
 	allowOutsideClick = true,
 	allowEscapeKey = true,
 	icon = "question",
+	didOpen = onModalOpen,
+	didDestroy = onModalClose,
 	...swalOptions
 } = {}) {
+	modalStatus = "opening";
+
 	var result = await Swal.fire({
 		title,
 		showConfirmButton,
@@ -75,6 +103,17 @@ async function promptSimple({
 		cancelButtonColor,
 		allowOutsideClick,
 		allowEscapeKey,
+		icon,
+		didOpen: (
+			didOpen != onModalOpen ?
+				(...args) => (onModalOpen(...args), didOpen(...args)) :
+				didOpen
+		),
+		didDestroy: (
+			didDestroy != onModalClose ?
+				(...args) => (onModalClose(...args), didDestroy(...args)) :
+				didDestroy
+		),
 		...swalOptions
 	});
 
@@ -89,21 +128,21 @@ function configSpinner(startDelay = 300,stopDelay = 500) {
 }
 
 function startSpinner() {
-	if (![ "opening", "open", ].includes(spinnerStatus)) {
-		spinnerStatus = "opening";
+	if (![ "opening", "open", ].includes(modalStatus)) {
+		modalStatus = "opening";
 		toggleSpinner(showSpinner,hideSpinner);
 	}
 }
 
 function stopSpinner() {
-	if (![ "closing", "closed", ].includes(spinnerStatus)) {
-		spinnerStatus = "closing";
+	if (![ "closing", "closed", ].includes(modalStatus)) {
+		modalStatus = "closing";
 		toggleSpinner(showSpinner,hideSpinner);
 	}
 }
 
 function showSpinner() {
-	spinnerStatus = "open";
+	modalStatus = "open";
 
 	// ensure we don't "re-open" an already-open spinner modal,
 	// as this causes a flicker that is UX undesirable.
@@ -123,13 +162,15 @@ function showSpinner() {
 				// styling
 				popup: "spinner-popup",
 			},
+			didOpen: onModalOpen,
+			didDestroy: onModalClose,
 		});
 		Swal.showLoading();
 	}
 }
 
 function hideSpinner() {
-	spinnerStatus = "closed";
+	modalStatus = "closed";
 
 	// ensure we only close an actually-open spinner
 	// modal (and not some other valid modal)
@@ -137,6 +178,18 @@ function hideSpinner() {
 		Swal.isVisible() &&
 		Swal.getPopup().matches(".spinner-popup")
 	) {
-		Swal.close();
+		close();
 	}
+}
+
+function close() {
+	Swal.close();
+}
+
+function onModalOpen() {
+	modalStatus = "open";
+}
+
+function onModalClose() {
+	modalStatus = "closed";
 }
