@@ -129,18 +129,36 @@ async function runSpinnerModalTests() {
 }
 
 async function runToastModalTests() {
+	var results = [];
+	var expected = [
+		/*visible*/true,
+		/*correct content*/true,
+		/*visible*/false,
+	];
 	testResultsEl.innerHTML += "Running toast-modal tests... please wait.<br>";
 
 	try {
-		Modal.showToast("Testing toasts...",500);
-		await timeout(750);
+		let toastMsg = "Testing toasts...";
+		Modal.showToast(toastMsg,500);
+		await timeout(250);
+		let popup = Swal.getPopup();
+		results.push(
+			Swal.isVisible(),
+			(
+				popup.querySelector(".swal2-html-container").innerText == toastMsg
+			)
+		);
+		await timeout(500);
+		results.push(
+			Swal.isVisible() || Swal.getContainer() != null
+		);
 
-		if (!Swal.isVisible() && Swal.getContainer() == null) {
+		if (JSON.stringify(results) == JSON.stringify(expected)) {
 			testResultsEl.innerHTML += "(Toast Modal) PASSED.<br>";
 			return true;
 		}
 		else {
-			testResultsEl.innerHTML += "(Toast Modal) FAILED: toast modal not closed<br>";
+			testResultsEl.innerHTML += `(Toast Modal) FAILED: expected '${expected.join(",")}', found '${results.join(",")}'<br>`;
 		}
 	}
 	catch (err) {
@@ -152,7 +170,11 @@ async function runToastModalTests() {
 
 async function runNoticeModalTests() {
 	var results = [];
-	var expected = [ true, true, false, ];
+	var expected = [
+		/*visible*/true,
+		/*correct content*/true,
+		/*visible*/false,
+	];
 	testResultsEl.innerHTML += "Running notice-modal tests... please wait.<br>";
 
 	try {
@@ -190,7 +212,11 @@ async function runNoticeModalTests() {
 
 async function runErrorModalTests() {
 	var results = [];
-	var expected = [ true, true, false, ];
+	var expected = [
+		/*visible*/true,
+		/*correct content*/true,
+		/*visible*/false,
+	];
 	testResultsEl.innerHTML += "Running error-modal tests... please wait.<br>";
 
 	try {
@@ -228,7 +254,11 @@ async function runErrorModalTests() {
 
 async function runSimplePromptModalTests() {
 	var results = [];
-	var expected = [ true, true, false, ];
+	var expected = [
+		/*visible*/true,
+		/*correct content*/true,
+		/*visible*/false,
+	];
 	testResultsEl.innerHTML += "Running prompt-modal tests... please wait.<br>";
 
 	try {

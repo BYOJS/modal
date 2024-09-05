@@ -21,7 +21,7 @@ showNotice("Hello, friend.");
 
 The main purpose of **Modal** is to provide a simple set of wrappers (and default behaviors) around [SweetAlert 2](https://sweetalert2.github.io).
 
-In addition to standard modals and prompt-dialogs, **Modal** also provides time-limited *Toast* popups (non-modal) as well as a debounced (UX-optimized) spinnner (modal) for blocking asynchronous operations in your UI.
+In addition to standard modals and prompt-dialogs, **Modal** also provides time-limited *Toast* popups (non-modal), as well as a debounced (UX-optimized) spinnner (modal) for use during blocking asynchronous operations in your UI.
 
 ## Deployment / Import
 
