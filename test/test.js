@@ -435,16 +435,16 @@ async function runSimplePromptModalTests() {
 		);
 
 		if (JSON.stringify(results) == JSON.stringify(expected)) {
-			testResultsEl.innerHTML += "(Error Modal) PASSED.<br>";
+			testResultsEl.innerHTML += "(Prompt Modal) PASSED.<br>";
 			return true;
 		}
 		else {
-			testResultsEl.innerHTML += `(Error Modal) FAILED: expected '${expected.join(",")}', found '${results.join(",")}'<br>`;
+			testResultsEl.innerHTML += `(Prompt Modal) FAILED: expected '${expected.join(",")}', found '${results.join(",")}'<br>`;
 		}
 	}
 	catch (err) {
 		logError(err);
-		testResultsEl.innerHTML = "(Error Modal) FAILED -- see console"
+		testResultsEl.innerHTML = "(Prompt Modal) FAILED -- see console"
 	}
 	return false;
 }
