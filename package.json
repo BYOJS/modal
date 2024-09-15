@@ -1,7 +1,7 @@
 {
 	"name": "@byojs/modal",
 	"description": "Simple wrapper around SweetAlert2",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"exports": {
 		"./": "./dist/modal.mjs"
 	},
@@ -18,7 +18,7 @@
 		"prepublishOnly": "npm run build:all"
 	},
 	"dependencies": {
-		"@byojs/toggler": "~0.1.1",
+		"@byojs/toggler": "~0.1.2",
 		"sweetalert2": "~11.13.2"
 	},
 	"devDependencies": {
