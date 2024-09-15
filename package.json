@@ -1,7 +1,7 @@
 {
 	"name": "@byojs/modal",
 	"description": "Simple wrapper around SweetAlert2",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"exports": {
 		"./": "./dist/modal.mjs"
 	},

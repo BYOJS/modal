@@ -1,4 +1,4 @@
-/*! Modal: #FILENAME#
+/*! byojs/Modal: #FILENAME#
     v#VERSION# (c) #YEAR# Kyle Simpson
     MIT License: http://getify.mit-license.org
 */
