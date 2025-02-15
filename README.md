@@ -71,6 +71,8 @@ import { showNotice, showError } from "modal";
 
 The API provided by **Modal** includes a variety of methods for displaying different types of modals.
 
+**Note:** In addition to the wrappers provided by **Modal** as described below, you can access the `Swal` import directly, which is just a re-export of **SweetAlert**.
+
 ### Spinner
 
 When asynchronous (but "blocking") behavior is happening on a page -- such as loading important data or behavior -- it can be useful to show a modal spinner to the user to indicate they shouldn't try to interact with the page temporarily.

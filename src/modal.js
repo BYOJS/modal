@@ -15,6 +15,7 @@ configSpinner(toggleStartDelay,toggleStopDelay).catch(()=>{});
 // ***********************
 
 export {
+	Swal,
 	showToast,
 	showNotice,
 	showError,
@@ -25,6 +26,7 @@ export {
 	close,
 };
 var publicAPI = {
+	Swal,
 	showToast,
 	showNotice,
 	showError,

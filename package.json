@@ -1,7 +1,7 @@
 {
 	"name": "@byojs/modal",
 	"description": "Simple wrapper around SweetAlert2",
-	"version": "0.2.4",
+	"version": "0.2.5",
 	"exports": {
 		"./": "./dist/modal.mjs"
 	},
@@ -19,12 +19,12 @@
 	},
 	"dependencies": {
 		"@byojs/toggler": "~0.1.3",
-		"sweetalert2": "~11.15.10"
+		"sweetalert2": "~11.16.1"
 	},
 	"devDependencies": {
 		"micromatch": "~4.0.8",
 		"recursive-readdir-sync": "~1.0.6",
-		"terser": "~5.37.0"
+		"terser": "~5.39.0"
 	},
 	"repository": {
 		"type": "git",
