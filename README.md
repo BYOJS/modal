@@ -109,8 +109,6 @@ startSpinner();
 stopSpinner();
 ```
 
-**Warning:** You must make sure any other **Modal** dialogs are closed *before* calling `startSpinner()`; otherwise, its ignored.
-
 Even though the `startSpinner()` and `stopSpinner()` functions fire off asynchronous behavior (spinner modal, dependent on debounce delays), the function themselves are synchronous (not promise returning).
 
 Both `startSpinner()` and `stopSpinner()` are idempotently safe, meaning you *may* call `startSpinner()` twice before calling `stopSpinner()`, or vice versa, and you still just get the one scheduled action (showing or hiding).

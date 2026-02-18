@@ -4,6 +4,7 @@ import Toggler from "@byojs/toggler";
 
 // ***********************
 
+var waitForClose = null;
 var modalType = null;
 var modalStatus = "closed";
 var toggleStartDelay = 300;
@@ -159,13 +160,30 @@ async function configSpinner(
 
 function startSpinner() {
 	if (![ "opening", "open", ].includes(modalStatus)) {
+		// still queued start-spinner?
+		if (waitForClose != null) {
+			Swal.off("didDestroy",waitForClose);
+			waitForClose = null;
+		}
 		modalType = "spinner";
 		modalStatus = "opening";
 		toggleSpinner(showSpinner,hideSpinner);
 	}
+	else if (waitForClose == null) {
+		waitForClose = () => {
+			waitForClose = null;
+			startSpinner();
+		};
+		Swal.on("didDestroy",waitForClose);
+	}
 }
 
 function stopSpinner() {
+	// queued start-spinner?
+	if (waitForClose != null) {
+		Swal.off("didDestroy",waitForClose);
+		waitForClose = null;
+	}
 	if (
 		modalType == "spinner" &&
 		![ "closing", "closed", ].includes(modalStatus)
