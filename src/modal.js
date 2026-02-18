@@ -174,7 +174,7 @@ function startSpinner() {
 			waitForClose = null;
 			startSpinner();
 		};
-		Swal.on("didDestroy",waitForClose);
+		Swal.once("didDestroy",waitForClose);
 	}
 }
 
